@@ -10,7 +10,7 @@ if __name__ == '__main__':
         package_dir={"": "package"},  # Optional
         packages=find_packages('package'),
         description='A package',
-        install_requires=[],
+        install_requires=['termcolor', 'pywin32', 'psutil'],
         entry_points={
             'console_scripts': ['wf-clean=wfenv:clean_main', 'wf-scan=wfenv:scan_main', 'wf-unsuspice=wfenv:unsuspice_main']
         }
