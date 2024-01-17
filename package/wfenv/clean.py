@@ -93,6 +93,18 @@ def clear_recent():
     remove_files_in_folder(automatic_destinations, False)
     remove_files_in_folder(custom_destinations, False)
 
+def clear_prefetch():
+    windir = os.getenv('windir')
+    if not windir:
+        print('windir folder not found')
+        return
+    
+    prefetch_dir = windir + '\\Prefetch'
+    if os.path.exists(prefetch_dir):
+        remove_files_in_folder(prefetch_dir)
+    else:
+        print(f'folder does not exist: "{prefetch_dir}"')
+
 def clean_main(argv=None):
     if argv is None:
         argv = sys.argv
@@ -130,6 +142,7 @@ def clean_main(argv=None):
     silentremove(get_system_temp_dir() + '\\mrac.log')
 
     clear_recent()
+    clear_prefetch()
 
     print('[Cleaner] Work is finished')
 
