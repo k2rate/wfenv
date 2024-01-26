@@ -8,6 +8,27 @@ import winreg
 import sys
 from pathlib import Path
 
+def RegFindValue(key, name):
+    try:
+        count = 0
+        while 1:
+            nname, value, type = winreg.EnumValue(key, count)
+            if nname == name:
+                return (nname, value, type)
+            count = count + 1
+    except WindowsError:
+        pass
+
+# def RegFindKey(key, name):
+#     try:
+#         count = 0
+#         while 1:
+#             nname, value, type = winreg.EnumValue(key, count)
+#             if nname == name:
+#                 return (nname, value, type)
+#             count = count + 1
+#     except WindowsError:
+#         pass
 
 def colpath(str):
     return colored(f'{str}', "light_magenta")
@@ -105,6 +126,40 @@ def clear_prefetch():
     else:
         print(f'folder does not exist: "{prefetch_dir}"')
 
+def clear_services():
+    tmpdir = tempfile.gettempdir()
+    aReg = winreg.ConnectRegistry(None, winreg.HKEY_LOCAL_MACHINE)
+    
+    aKey = winreg.OpenKey(aReg, 'SYSTEM\\CurrentControlSet\\Services\\')
+    suspicious_services : list = []
+
+    # list all values for a key
+    try:
+        count = 0
+        while 1:
+            name = winreg.EnumKey(aKey, count)
+            regpath = 'SYSTEM\\CurrentControlSet\\Services\\' + name + '\\'
+            bKey = winreg.OpenKey(aReg, regpath)
+
+            value = RegFindValue(bKey, 'ImagePath')
+            if value:
+                if tmpdir in value[1]:
+                    suspicious_services.append((regpath, name, value[1]))
+                    # print(f'driver: {regpath} -> {name} -> {value[1]}')  
+
+            
+
+            count = count + 1
+    except WindowsError:
+        pass
+    
+    for svc in suspicious_services:
+        try:
+            winreg.DeleteKey(aReg, svc[0])
+            print(f'removed service: "{colpath(svc[0])}" -> "{colpath(svc[1])}" -> "{colpath(svc[2])}"')
+        except WindowsError as e:
+            print(f'Failed to remove "{colpath(svc[0])}":', e)
+
 def clean_main(argv=None):
     if argv is None:
         argv = sys.argv
@@ -148,3 +203,5 @@ def clean_main(argv=None):
 
 if __name__ == "__main__":
     sys.exit(clean_main(sys.argv))
+    
+# clear_services()
