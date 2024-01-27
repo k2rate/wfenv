@@ -198,10 +198,9 @@ def clean_main(argv=None):
 
     clear_recent()
     clear_prefetch()
+    clear_services()
 
     print('[Cleaner] Work is finished')
 
 if __name__ == "__main__":
     sys.exit(clean_main(sys.argv))
-    
-# clear_services()
